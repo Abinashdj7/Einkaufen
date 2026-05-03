@@ -67,11 +67,4 @@ coverage/
 # Temporary files
 *~
 
-# Specific project ignores
-TODO.md
-DEBUG-LOG.md
-e-commerce/TODO.md
-e-commerce/DOCKER.md
-generate_readme_prompt.py
-e-commerce/generate_readme_prompt.py
-Docker.md
+
