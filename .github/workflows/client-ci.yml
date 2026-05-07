@@ -1,0 +1,49 @@
+name: Client CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'e-commerce/Client/**'
+      - '.github/workflows/client-ci.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'e-commerce/Client/**'
+      - '.github/workflows/client-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & Typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: e-commerce/Client
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: e-commerce/Client/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: e-commerce/Client/dist/
+          retention-days: 7

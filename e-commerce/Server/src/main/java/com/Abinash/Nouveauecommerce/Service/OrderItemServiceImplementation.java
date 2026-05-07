@@ -15,7 +15,6 @@ public class OrderItemServiceImplementation implements OrderItemService {
 	
 	@Override
 	public OrderItem createOrderItem(OrderItem orderItem) {
-		// TODO Auto-generated method stub
 		return orderItemRepo.save(orderItem);
 	}
 

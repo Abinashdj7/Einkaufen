@@ -312,7 +312,6 @@ export const cancelOrder = (orderId) => async (dispatch) => {
     }
 };
 
-// Async action creator for deleting an order
 export const deleteOrder = (orderId) => {
     return async (dispatch) => {
         dispatch(deleteOrderRequest());

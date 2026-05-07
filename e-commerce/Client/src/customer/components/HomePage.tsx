@@ -9,26 +9,37 @@ export const HomePage = () => {
     const { products, loading } = useSelector(state => state.product)
 
     useEffect(() => {
-        // Fetch all products when component mounts
         dispatch(getAllProducts())
     }, [dispatch])
 
-    // Group products by category for display
-    const getProductsByCategory = (categoryPrefix) => {
-        return products.filter(p =>
+    if (loading && products.length === 0) {
+        return (
+            <div className="min-h-[60vh] flex items-center justify-center">
+                <p className="text-lg font-medium text-gray-700">Loading products...</p>
+            </div>
+        )
+    }
+
+    if (!loading && products.length === 0) {
+        return (
+            <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+                <h2 className="text-2xl font-bold text-gray-900">No products found</h2>
+                <p className="text-gray-600 mt-2">Please check back later or add inventory through the admin panel.</p>
+            </div>
+        )
+    }
+
+    const getProductsByCategory = (categoryPrefix: string) => {
+        return products.filter((p: any) =>
             p.category && p.category.name && p.category.name.startsWith(categoryPrefix)
         )
     }
 
-    // New category sections matching backend data
     const electronics = getProductsByCategory("electronics")
     const mensClothing = getProductsByCategory("mens_")
     const womensClothing = getProductsByCategory("womens_")
     const homeLiving = getProductsByCategory("home")
     const books = getProductsByCategory("books")
-
-    // console.log("[HOMEPAGE] Products loaded:", products.length)
-    // console.log("[HOMEPAGE] Loading:", loading)
 
     return (<><div>
         <MainCarousel />
@@ -40,7 +51,6 @@ export const HomePage = () => {
             {homeLiving.length > 0 && <HomeSectionCarousel data={homeLiving.slice(0, 8)} sectionName={"Home & Living"} />}
             {books.length > 0 && <HomeSectionCarousel data={books.slice(0, 8)} sectionName={"Best Books"} />}
 
-            {/* Fallback: Show all products if no category filtering yields results */}
             {products.length > 0 && mensClothing.length === 0 && womensClothing.length === 0 && (
                 <HomeSectionCarousel data={products} sectionName={"All Products"} />
             )}

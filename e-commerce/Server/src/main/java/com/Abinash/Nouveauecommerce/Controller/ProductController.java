@@ -77,9 +77,6 @@ public class ProductController {
 		return new ResponseEntity<List<Product>>(products, HttpStatus.OK);
 	}
 
-	/**
-	 * Debug endpoint to verify database contents - useful for troubleshooting
-	 */
 	@GetMapping("/debug/products/count")
 	public ResponseEntity<String> getProductCount() {
 		logger.info("PRODUCT CONTROLLER: Debug endpoint called - getting product count");
@@ -87,7 +84,6 @@ public class ProductController {
 		String message = "Total products in database: " + products.size();
 		logger.info("PRODUCT CONTROLLER: " + message);
 
-		// Group by category for logging
 		products.stream()
 				.filter(p -> p.getCategory() != null)
 				.collect(java.util.stream.Collectors.groupingBy(p -> p.getCategory().getName()))

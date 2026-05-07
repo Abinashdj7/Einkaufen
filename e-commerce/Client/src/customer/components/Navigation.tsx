@@ -54,8 +54,9 @@ export default function Navigation() {
 
   const handleCategoryClick = (category, section, item, close) => {
     navigate(`/${category.id}/${section.id}/${item.id}`);
-    window.location.reload()
-    close();
+    if (typeof close === "function") {
+      close();
+    }
   };
 
   useEffect(() => {
@@ -80,7 +81,6 @@ export default function Navigation() {
 
   return (
     <div className="glass-card backdrop-blur-sm bg-white/80 shadow-2xl border-b border-white/30 pb-10">
-      {/* Mobile menu */}
       <Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="relative z-40 lg:hidden" onClose={setOpen}>
           <Transition.Child
@@ -117,7 +117,6 @@ export default function Navigation() {
                   </button>
                 </div>
 
-                {/* Links */}
                 <Tab.Group as="div" className="mt-2">
                   <div className="border-b border-gray-200">
                     <Tab.List className="-mb-px flex space-x-8 px-4">
@@ -181,7 +180,6 @@ export default function Navigation() {
                             >
                               {section.name}
                             </p>
-                            {/* eslint-disable-next-line jsx-a11y/no-redundant-roles */}
                             <ul
                               role="list"
                               aria-labelledby={`${category.id}-${section.id}-heading-mobile`}
@@ -189,9 +187,16 @@ export default function Navigation() {
                             >
                               {section.items.map((item) => (
                                 <li key={item.name} className="flow-root">
-                                  <p className="-m-2 block p-2 text-gray-500">
-                                    {"item.name"}
-                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      handleCategoryClick(category, section, item);
+                                      setOpen(false);
+                                    }}
+                                    className="-m-2 block w-full rounded-md p-2 text-left text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                                  >
+                                    {item.name}
+                                  </button>
                                 </li>
                               ))}
                             </ul>
@@ -262,7 +267,6 @@ export default function Navigation() {
                 <Bars3Icon className="h-6 w-6" aria-hidden="true" />
               </button>
 
-              {/* Logo */}
               <div className="ml-4 flex lg:ml-0">
                 <Link to="/">
                   <span className="sr-only">Your Company</span>
@@ -274,7 +278,6 @@ export default function Navigation() {
                 </Link>
               </div>
 
-              {/* Flyout menus */}
               <Popover.Group className="hidden lg:ml-8 lg:block lg:self-stretch z-10">
                 <div className="flex h-full space-x-8">
                   {navigation.categories.map((category) => (
@@ -304,7 +307,6 @@ export default function Navigation() {
                             leaveTo="opacity-0"
                           >
                             <Popover.Panel className="absolute inset-x-0 top-full text-sm text-gray-500">
-                              {/* Presentational element used to render the bottom shadow, if we put the shadow on the actual panel it pokes out the top, so we use this shorter element to hide the top of the shadow */}
                               <div
                                 className="absolute inset-0 top-1/2 bg-white shadow"
                                 aria-hidden="true"
@@ -416,7 +418,6 @@ export default function Navigation() {
                         aria-controls={open ? "basic-menu" : undefined}
                         aria-haspopup="true"
                         aria-expanded={open ? "true" : undefined}
-                        // onClick={handleUserClick}
                         sx={{
                           bgcolor: deepPurple[500],
                           color: "white",
@@ -425,15 +426,6 @@ export default function Navigation() {
                       >
                         {auth.user?.firstName[0].toUpperCase()}
                       </Avatar>
-                      {/* <Button
-                        id="basic-button"
-                        aria-controls={open ? "basic-menu" : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={open ? "true" : undefined}
-                        onClick={handleUserClick}
-                      >
-                        Dashboard
-                      </Button> */}
                       <Menu
                         id="basic-menu"
                         anchorEl={anchorEl}
@@ -461,20 +453,14 @@ export default function Navigation() {
                   )}
                 </div>
 
-                {/* Search */}
                 <div className="flex items-center lg:ml-6">
 
                   <p onClick={() => navigate("/products/search")} className="p-2 text-gray-400 hover:text-gray-500">
                     <span className="sr-only">Search</span>
 
-                    {/* <MagnifyingGlassIcon
-                      className="h-6 w-6"
-                      aria-hidden="true"
-                    /> */}
                   </p>
                 </div>
 
-                {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
                   <Button
                     onClick={() => navigate("/cart")}

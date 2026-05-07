@@ -12,14 +12,12 @@ export const ProductCard = ({ product }: Props) => {
             onClick={() => navigate(`/product/${product.id}`)}
             className="group relative bg-gradient-to-br from-slate-50/50 to-white/50 backdrop-blur-sm border border-white/30 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-2 product-hover w-full max-w-sm mx-auto transition-all duration-500 cursor-pointer overflow-hidden"
         >
-            {/* Product Image */}
             <div className="relative h-64 overflow-hidden bg-gradient-to-br from-primary-50 to-secondary-50">
                 <img
                     className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
                     src={product.imageUrl}
                     alt={product.title}
                 />
-                {/* Discount Badge */}
                 {product.discountPercent > 0 && (
                     <div className="absolute top-4 left-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                         -{product.discountPercent}%
@@ -27,7 +25,6 @@ export const ProductCard = ({ product }: Props) => {
                 )}
             </div>
 
-            {/* Product Info */}
             <div className="p-6">
                 <div className="space-y-2">
                     <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide gradient-text/70">
@@ -53,7 +50,6 @@ export const ProductCard = ({ product }: Props) => {
                     </div>
                 </div>
 
-                {/* Add to Cart Button */}
                 <button className="btn-primary w-full mt-4 group-hover:bg-primary-800">
                     Add to Cart
                 </button>

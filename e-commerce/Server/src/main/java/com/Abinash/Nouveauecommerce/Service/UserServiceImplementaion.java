@@ -21,7 +21,6 @@ public class UserServiceImplementaion implements UserService{
 	
 	@Override
 	public User findUserById(Long id) throws UserException {
-		// TODO Auto-generated method stub
 		Optional<User> user=userRepo.findById(id);
 		if(user.isPresent()) {
 			return user.get();

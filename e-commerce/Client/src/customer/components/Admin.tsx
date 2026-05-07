@@ -12,10 +12,6 @@ import { CustomerTable } from "./CustomerTable"
 
 export const Admin = () => {
     const menu = [
-        //{ name: "Dashboard", path: "/admin", icon: <DashboardOutlined /> },
-        //{ name: "Products", path: "/admin/products", icon: <DashboardOutlined /> },
-        //{ name: "Customers", path: "/admin/customers", icon: <DashboardOutlined /> },
-        //{ name: "Orders", path: "/admin/orders", icon: <DashboardOutlined /> },
         { name: "Add products", path: "/admin/product/create", icon: <DashboardOutlined/> },
     ]
     const theme = useTheme()

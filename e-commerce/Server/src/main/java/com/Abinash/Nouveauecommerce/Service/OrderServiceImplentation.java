@@ -93,17 +93,11 @@ public class OrderServiceImplentation implements OrderService {
 		createdOrder.setCreatedAt(LocalDateTime.now());
 		Order savedOrder=orderRepo.save(createdOrder);
 		cartItemRepo.clearCart(user.getId());
-		//try {
 		for(OrderItem item:orderItems) {
 			item.setOrder(savedOrder);
 			orderItemRepo.save(item);
 		}
 		return savedOrder;
-		//}
-		//catch(Exception e) {
-			//e.printStackTrace();
-		//}
-		//return null;
 	}
 
 	@Override

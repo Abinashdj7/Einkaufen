@@ -1,8 +1,6 @@
-import axios from "axios"
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios"
 
-export const API_BASE_URL = "http://localhost:8080"
-// Log all API requests and responses for debugging
-// console.log("[API_CONFIG] Initializing API with base URL:", API_BASE_URL);
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
 
 export const api = axios.create({
     baseURL: API_BASE_URL,
@@ -11,26 +9,24 @@ export const api = axios.create({
     }
 })
 
-// Add request interceptor for logging (disabled)
 api.interceptors.request.use(
-    (config) => {
-        // console.log("[API_CONFIG] >>> REQUEST:", config.method?.toUpperCase(), config.url);
+    (config: AxiosRequestConfig) => {
+        console.log('[API REQUEST]', config.method?.toUpperCase(), config.url)
         return config;
     },
-    (error) => {
-        // console.error("[API_CONFIG] >>> REQUEST ERROR:", error.message);
+    (error: AxiosError) => {
+        console.error('[API REQUEST ERROR]', error)
         return Promise.reject(error);
     }
 );
 
-// Add response interceptor for logging (disabled)
 api.interceptors.response.use(
-    (response) => {
-        // console.log("[API_CONFIG] <<< RESPONSE:", response.status, response.config.url, "- Data length:", Array.isArray(response.data) ? response.data.length : "N/A");
+    (response: AxiosResponse) => {
+        console.log('[API RESPONSE]', response.status, response.config.method?.toUpperCase(), response.config.url, response.data?.length ? `(${response.data.length} items)` : '')
         return response;
     },
-    (error) => {
-        // console.error("[API_CONFIG] <<< RESPONSE ERROR:", error.message, "- URL:", error.config?.url);
+    (error: AxiosError) => {
+        console.error('[API RESPONSE ERROR]', error.response?.status, error.config?.method?.toUpperCase(), error.config?.url, error.message)
         return Promise.reject(error);
     }
 );

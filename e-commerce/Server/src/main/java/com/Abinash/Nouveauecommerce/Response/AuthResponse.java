@@ -12,7 +12,6 @@ public class AuthResponse {
 	}
 
 	public AuthResponse() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public String getJwt() {

@@ -42,7 +42,6 @@ public class ReviewServiceImplementation implements ReviewService {
 
 	@Override
 	public List<Review> getAllReviews(Long productId) {
-		// TODO Auto-generated method stub
 		return reviewRepo.getAllProductsReview(productId);
 	}
 	

@@ -8,7 +8,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-e-commerce/Server/logs/
+Server/logs/
 
 # Runtime data
 pids
@@ -19,14 +19,14 @@ pids
 # Dependency directories
 node_modules/
 jspm_packages/
-e-commerce/Client/node_modules/
-e-commerce/Server/target/
+Client/node_modules/
+Server/target/
 
 # Build outputs
 dist/
 build/
 out/
-e-commerce/Client/dist/
+Client/dist/
 coverage/
 
 # Environment variables

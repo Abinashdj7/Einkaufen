@@ -32,10 +32,8 @@ import com.razorpay.RazorpayClient;
 @RequestMapping("/api")
 public class PaymentController {
 	
-	//@Value("${razorpay.api.key}")
 	String key;
-	
-	//@Value("${razorpay.api.secret}")
+
 	String secret;
 	
 	@Autowired
@@ -98,7 +96,6 @@ public class PaymentController {
 		try {
 			razorpay = new RazorpayClient(key,secret);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try {

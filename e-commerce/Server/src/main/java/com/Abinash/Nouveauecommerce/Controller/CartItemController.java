@@ -44,9 +44,7 @@ public class CartItemController {
 		User user=userService.findUserProfileByJwt(jwt);
 		
 		CartItem updatedCartItem =cartItemService.updateCartItem(user.getId(), cartItemId, cartItem);
-		
-		//ApiResponse res=new ApiResponse("Item Updated",true);
-		
+
 		return new ResponseEntity<>(updatedCartItem,HttpStatus.ACCEPTED);
 	}
 	

@@ -23,9 +23,6 @@ interface Props {
     open: boolean;
 }
 export default function AuthModal({ handleClose, open }: Props) {
-    //const [open, setOpen] = React.useState(false);
-    //const handleOpen = () => setOpen(true);
-    //const handleClose = () => setOpen(false);
     const location = useLocation()
     return (
         <div>
