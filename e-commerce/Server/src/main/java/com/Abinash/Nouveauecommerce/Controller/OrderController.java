@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +23,6 @@ import com.Abinash.Nouveauecommerce.Model.User;
 import com.Abinash.Nouveauecommerce.Service.OrderService;
 import com.Abinash.Nouveauecommerce.Service.UserService;
 
-@CrossOrigin(origins = "*",allowedHeaders = "*", exposedHeaders = "*")
 @RestController
 @RequestMapping("/api/order")
 public class OrderController {

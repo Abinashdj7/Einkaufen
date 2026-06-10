@@ -28,7 +28,7 @@ public interface ProductRepo extends JpaRepository<Product, Long>{
 	@Query("SELECT p From Product p Where LOWER(p.category.name)=:category")
 	public List<Product> findByCategory(@Param("category") String category);
 	
-	@Query("SELECT p From Product p where LOWER(p.title) Like %:query% OR LOWER(p.description) Like %:query% OR LOWER(p.brand) LIKE %:query% OR LOWER(p.category.name) LIKE %:query%")
+	@Query("SELECT p From Product p where LOWER(p.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(p.category.name) LIKE LOWER(CONCAT('%', :query, '%'))")
 	public List<Product> searchProduct(@Param("query")String query);
 
 	public List<Product> findTop10ByOrderByCreatedAtDesc();

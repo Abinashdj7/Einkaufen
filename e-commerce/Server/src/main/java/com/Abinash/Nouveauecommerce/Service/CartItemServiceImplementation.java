@@ -40,13 +40,15 @@ public class CartItemServiceImplementation implements CartItemService{
 	public CartItem updateCartItem(Long userId, Long id, CartItem cartItem) throws CartItemException, UserException {
 		CartItem item=findCartItemById(id);
 		User user=userService.findUserById(item.getUserId());
-		
-		if(user.getId()==userId) {
-			item.setQuantity(cartItem.getQuantity());
-			item.setPrice(item.getQuantity()*item.getProduct().getPrice());
-			item.setDiscountedPrice(item.getProduct().getDiscountedPrice()*item.getQuantity());
+
+		if(!user.getId().equals(userId)) {
+			throw new UserException("You can't update another user's cart item");
 		}
-		
+
+		item.setQuantity(cartItem.getQuantity());
+		item.setPrice(item.getQuantity()*item.getProduct().getPrice());
+		item.setDiscountedPrice(item.getProduct().getDiscountedPrice()*item.getQuantity());
+
 		return cartItemRepo.save(item);
 	}
 
@@ -81,11 +83,20 @@ public class CartItemServiceImplementation implements CartItemService{
 	}
 
 	@Override
-	public CartItem changeNumberOfItems(Long cartItemId,Integer changeNumber) throws CartItemException {
-		
+	public CartItem changeNumberOfItems(Long userId,Long cartItemId,Integer changeNumber) throws CartItemException, UserException {
+
 		CartItem item=findCartItemById(cartItemId);
+		User user=userService.findUserById(item.getUserId());
+		User reqUser=userService.findUserById(userId);
+
+		if(!user.getId().equals(reqUser.getId())) {
+			throw new UserException("You can't modify another user's cart item");
+		}
+
 		item.setQuantity(item.getQuantity()+changeNumber);
-		return null;
+		item.setPrice(item.getQuantity()*item.getProduct().getPrice());
+		item.setDiscountedPrice(item.getProduct().getDiscountedPrice()*item.getQuantity());
+		return cartItemRepo.save(item);
 	}
 	
 }

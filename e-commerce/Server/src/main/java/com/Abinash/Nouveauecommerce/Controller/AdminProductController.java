@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +20,6 @@ import com.Abinash.Nouveauecommerce.Request.CreateProductRequest;
 import com.Abinash.Nouveauecommerce.Service.ProductService;
 import com.Abinash.Nouveauecommerce.Request.CreateProductRequest;
 
-@CrossOrigin(origins = "*",allowedHeaders = "*", exposedHeaders = "*")
 @RestController
 @RequestMapping("/api/admin/products")
 public class AdminProductController {
@@ -42,9 +40,7 @@ public class AdminProductController {
 	@DeleteMapping("/{productId}/delete")
 	public ResponseEntity<String> deleteProductHandler(@PathVariable Long productId) throws ProductException{
 		
-		System.out.println("dlete product controller .... ");
-		String msg=productService.deleteProduct(productId);
-		System.out.println("dlete product controller .... msg "+msg);
+		productService.deleteProduct(productId);
 		String res="Product deleted";
 		
 		return new ResponseEntity<String>(res,HttpStatus.ACCEPTED);

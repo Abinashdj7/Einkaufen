@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +19,6 @@ import com.Abinash.Nouveauecommerce.Exception.ProductException;
 import com.Abinash.Nouveauecommerce.Model.Product;
 import com.Abinash.Nouveauecommerce.Service.ProductService;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*", exposedHeaders = "*")
 @RestController
 @RequestMapping("/api")
 public class ProductController {
@@ -32,7 +30,7 @@ public class ProductController {
 
 	@GetMapping("/products")
 	public ResponseEntity<Page<Product>> findProductByCategoryHandler(@RequestParam String category,
-			@RequestParam String color, List<String> sizes, @RequestParam Integer minPrice,
+			@RequestParam String color, @RequestParam(required = false) List<String> sizes, @RequestParam Integer minPrice,
 			@RequestParam Integer maxPrice, @RequestParam Integer minDiscount, @RequestParam String sort,
 			@RequestParam Integer pageNumber, @RequestParam Integer pageSize) {
 		logger.info("PRODUCT CONTROLLER: Received request to find products by category - " + category);

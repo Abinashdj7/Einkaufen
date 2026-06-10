@@ -1,4 +1,4 @@
-package com.Abinash.Nouveauecommerce.config;
+package com.Abinash.testsupport;
 
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;

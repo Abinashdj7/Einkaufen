@@ -14,24 +14,30 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 
+import com.Abinash.Nouveauecommerce.Config.JwtValidator;
 import com.Abinash.Nouveauecommerce.Exception.ProductException;
 import com.Abinash.Nouveauecommerce.Model.Category;
 import com.Abinash.Nouveauecommerce.Model.Product;
 import com.Abinash.Nouveauecommerce.Service.ProductService;
-import com.Abinash.Nouveauecommerce.config.TestConfig;
+import com.Abinash.testsupport.TestConfig;
 
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-@WebMvcTest(controllers = ProductController.class)
+@WebMvcTest(controllers = ProductController.class,
+                excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtValidator.class))
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 @Import(TestConfig.class)
 class ProductControllerTest {

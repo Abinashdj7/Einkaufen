@@ -8,17 +8,24 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.Abinash.Nouveauecommerce.Model.Category;
 import com.Abinash.Nouveauecommerce.Model.Product;
 import com.Abinash.Nouveauecommerce.Model.Size;
+import com.Abinash.Nouveauecommerce.Model.User;
 import com.Abinash.Nouveauecommerce.Repo.CategoryRepo;
 import com.Abinash.Nouveauecommerce.Repo.ProductRepo;
+import com.Abinash.Nouveauecommerce.Repo.UserRepo;
+import com.Abinash.Nouveauecommerce.Service.CartService;
 
 @Configuration
+@Profile("!test")
 public class DataInitializer {
 
         private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
@@ -33,12 +40,9 @@ public class DataInitializer {
                         boolean isFirstRun = productRepo.count() == 0;
                         if (isFirstRun) {
                                 logger.info("DATA INITIALIZER: Database is empty. Starting full sample data initialization...");
-                                System.out.println("Initializing database with sample data...");
                         } else {
                                 logger.warn("DATA INITIALIZER: Database already contains " + productRepo.count()
                                                 + " products. Still ensuring categories exist...");
-                                System.out.println(
-                                                "Database already initialized, ensuring categories and custom products exist...");
                         }
 
                         Category mens = getOrCreateCategory("mens", 1, null, categoryRepo);
@@ -302,8 +306,36 @@ public class DataInitializer {
                                                         books, 5, 520));
 
                         productRepo.saveAll(products);
-                        System.out.println("Database initialized with " + products.size()
+                        logger.info("Database initialized with " + products.size()
                                         + " sample products across 5 categories!");
+                };
+        }
+
+        @Bean
+        CommandLineRunner initAdminUser(UserRepo userRepo, PasswordEncoder passwordEncoder, CartService cartService,
+                        @Value("${app.admin.email:admin@nouveau-ecommerce.com}") String adminEmail,
+                        @Value("${app.admin.password:}") String adminPassword) {
+                return args -> {
+                        if (userRepo.findByEmail(adminEmail) != null) {
+                                return;
+                        }
+                        if (adminPassword == null || adminPassword.isBlank()) {
+                                logger.warn("DATA INITIALIZER: app.admin.password is not set - skipping default admin "
+                                                + "account creation. Set ADMIN_EMAIL and ADMIN_PASSWORD to provision an "
+                                                + "administrator account with the ROLE_ADMIN authority.");
+                                return;
+                        }
+
+                        User admin = new User();
+                        admin.setEmail(adminEmail);
+                        admin.setPassword(passwordEncoder.encode(adminPassword));
+                        admin.setFirstName("Store");
+                        admin.setLastName("Admin");
+                        admin.setRole("ROLE_ADMIN");
+                        User savedAdmin = userRepo.save(admin);
+                        cartService.createCart(savedAdmin);
+
+                        logger.info("DATA INITIALIZER: Created default admin account [" + adminEmail + "]");
                 };
         }
 

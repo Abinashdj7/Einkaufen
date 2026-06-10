@@ -7,12 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.Abinash.Nouveauecommerce.Config.JwtProvider;
 import com.Abinash.Nouveauecommerce.Exception.UserException;
-import com.Abinash.Nouveauecommerce.Model.Cart;
 import com.Abinash.Nouveauecommerce.Model.User;
 import com.Abinash.Nouveauecommerce.Repo.UserRepo;
 import com.Abinash.Nouveauecommerce.Request.LoginRequest;
@@ -28,7 +25,6 @@ import com.Abinash.Nouveauecommerce.Response.AuthResponse;
 import com.Abinash.Nouveauecommerce.Service.CartService;
 import com.Abinash.Nouveauecommerce.Service.CustomerUserServiceImplementation;
 
-@CrossOrigin(origins = "*",allowedHeaders = "*", exposedHeaders = "*")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -55,7 +51,6 @@ public class AuthController {
 		String password=user.getPassword();
 		String firstString=user.getFirstName();
 		String lastString=user.getLastName();
-		System.out.println(userRepo);
 		User isEmailExist=userRepo.findByEmail(email);
 		if(isEmailExist!=null) {
 			throw new UserException("Email is already used with another account");
@@ -65,12 +60,14 @@ public class AuthController {
 		createdUser.setPassword(passwordEncoder.encode(password));
 		createdUser.setFirstName(firstString);
 		createdUser.setLastName(lastString);
+		createdUser.setRole("ROLE_USER");
 		User savedUser=userRepo.save(createdUser);
-		
-		Cart cart=cartService.createCart(savedUser);
-		
-		
-		Authentication authentication=new UsernamePasswordAuthenticationToken(savedUser.getEmail(),savedUser.getPassword());
+
+		cartService.createCart(savedUser);
+
+
+		Authentication authentication=new UsernamePasswordAuthenticationToken(savedUser.getEmail(),savedUser.getPassword(),
+				AuthorityUtils.createAuthorityList(savedUser.getRole()));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		
 		String token=jwtProvider.generateToken(authentication);

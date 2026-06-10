@@ -48,11 +48,7 @@ public class CustomerProductServiceImplentation implements ProductService {
 
 				topLevel = categoryRepo.save(topLevelCategory);
 			}
-			System.out.println(topLevel.getName());
-			System.out.println(topLevel);
-			System.out.println(req.getSecondLevelCategory());
 			Category secondLevel = categoryRepo.findByNameAndParent(req.getSecondLevelCategory(), topLevel.getName());
-			System.out.println("Hey at the end");
 			if (secondLevel == null) {
 				Category secondLevelCategory = new Category();
 				secondLevelCategory.setName(req.getSecondLevelCategory());
@@ -68,7 +64,7 @@ public class CustomerProductServiceImplentation implements ProductService {
 				thirdLevelCategory.setParentCategory(secondLevel);
 				thirdLevelCategory.setLevel(3);
 
-				secondLevel = categoryRepo.save(thirdLevelCategory);
+				thirdLevel = categoryRepo.save(thirdLevelCategory);
 			}
 
 			Product product = new Product();
@@ -88,9 +84,9 @@ public class CustomerProductServiceImplentation implements ProductService {
 			Product savedProduct = productRepo.save(product);
 			return savedProduct;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Failed to create product '{}': {}", req.getTitle(), e.getMessage(), e);
+			throw new RuntimeException("Failed to create product: " + e.getMessage(), e);
 		}
-		return null;
 	}
 
 	@Override
@@ -160,8 +156,7 @@ public class CustomerProductServiceImplentation implements ProductService {
 
 		List<Product> pageContent = products.subList(startIndex, endIndex);
 		Page<Product> filteredProducts = new PageImpl<>(pageContent, pageable, products.size());
-		System.out.println("Filtered products" + filteredProducts.getContent());
-		return filteredProducts; // If color list is empty, do nothing and return all products
+		return filteredProducts;
 
 	}
 

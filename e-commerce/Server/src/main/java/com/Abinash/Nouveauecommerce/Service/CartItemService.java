@@ -21,7 +21,7 @@ public interface CartItemService {
 	
 	public CartItem findCartItemById(Long cartItemId) throws CartItemException;
 	
-	public CartItem	changeNumberOfItems(Long cartItemId,Integer changeNumber) throws CartItemException;
+	public CartItem	changeNumberOfItems(Long userId,Long cartItemId,Integer changeNumber) throws CartItemException,UserException;
 	
 	
 }
