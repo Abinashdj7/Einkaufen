@@ -1,0 +1,54 @@
+[
+  {
+    "id": 1,
+    "title": "Men's Casual T-Shirt",
+    "description": "Comfortable cotton t-shirt for everyday wear",
+    "price": 999,
+    "discountedPrice": 799,
+    "discountPercent": 20,
+    "brand": "FashionBrand",
+    "colour": "blue",
+    "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
+    "category": { "name": "mens_clothing" },
+    "quantity": 50
+  },
+  {
+    "id": 2,
+    "title": "Women's Summer Dress",
+    "description": "Light and breezy summer dress perfect for outdoor events",
+    "price": 1499,
+    "discountedPrice": 1199,
+    "discountPercent": 20,
+    "brand": "StyleHouse",
+    "colour": "red",
+    "imageUrl": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400",
+    "category": { "name": "womens_clothing" },
+    "quantity": 30
+  },
+  {
+    "id": 3,
+    "title": "Wireless Headphones",
+    "description": "Premium sound quality with active noise cancellation",
+    "price": 4999,
+    "discountedPrice": 4999,
+    "discountPercent": 0,
+    "brand": "TechAudio",
+    "colour": "black",
+    "imageUrl": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
+    "category": { "name": "electronics" },
+    "quantity": 15
+  },
+  {
+    "id": 4,
+    "title": "Running Shoes",
+    "description": "Lightweight shoes for marathon training",
+    "price": 3499,
+    "discountedPrice": 2799,
+    "discountPercent": 20,
+    "brand": "SpeedStep",
+    "colour": "white",
+    "imageUrl": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
+    "category": { "name": "footwear" },
+    "quantity": 25
+  }
+]

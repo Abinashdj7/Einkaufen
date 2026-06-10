@@ -17,7 +17,6 @@ export const CartItem = ({ item }: Props) => {
         window.location.reload()
     }
     const handleRemoveCartItem = () => {
-        console.log(item.id)
         dispatch(removeItemFromCart(item.id))
     }
     return (<div className="p-5 shadow-lg border rounded-md">

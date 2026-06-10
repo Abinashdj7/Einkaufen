@@ -35,7 +35,6 @@ import { confirmOrder, deleteOrder, deliveredOrder, getOrders, shipOrder } from 
     const jwt = localStorage.getItem("jwt");
     const { adminsOrder } = useSelector((store) => store);
     const [anchorElArray, setAnchorElArray] = useState([]);
-    console.log(adminsOrder)
     useEffect(() => {
       dispatch(getOrders({ jwt }));
     }, [jwt]);
@@ -58,10 +57,6 @@ import { confirmOrder, deleteOrder, deliveredOrder, getOrders, shipOrder } from 
 
       setFormData({ ...formData, [name]: value });
     };
-    function handlePaginationChange(event, value) {
-      console.log("Current page:", value);
-    }
-
     const handleConfirmedOrder = (orderId, index) => {
       handleUpdateStatusMenuClose(index);
       dispatch(confirmOrder(orderId));

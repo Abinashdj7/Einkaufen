@@ -62,7 +62,6 @@ export default function Product() {
     navigate({ search: `?${query}` });
   };
 
-  console.log(productState)
   useEffect(() => {
     const [minPrice, maxPrice] =
       price === null ? [0, 0] : price.split("-").map(Number);
@@ -86,7 +85,6 @@ export default function Product() {
       if (filterValues.length === 0) {
         searchParams.delete(sectionId);
       }
-      console.log("includes");
     } else {
       filterValues.push(value);
     }

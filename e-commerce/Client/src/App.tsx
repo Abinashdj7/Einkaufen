@@ -42,14 +42,13 @@ function App() {
         ? '/api/allProducts'
         : `${API_BASE_URL}/api/allProducts`
 
-      console.log('[FRONTEND] Fetching products from:', apiUrl)
-
       const response = await axios.get(apiUrl)
-      console.log('[FRONTEND] API Response:', response.data)
 
       setProducts(response.data)
     } catch (err) {
-      console.error('[FRONTEND] Error fetching products:', err)
+      if (import.meta.env.DEV) {
+        console.error('[FRONTEND] Error fetching products:', err)
+      }
       setError('Failed to load products. Please check the backend is running.')
     } finally {
       setLoading(false)
