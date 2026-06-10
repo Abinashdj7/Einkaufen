@@ -28,6 +28,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set lowercase image owner
+        id: image_owner
+        run: echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
       - name: Build & push client image
         uses: docker/build-push-action@v6
         with:
@@ -35,8 +39,8 @@ jobs:
           file: e-commerce/Dockerfile.client
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/nouveau-ecommerce-client:latest
-            ghcr.io/${{ github.repository_owner }}/nouveau-ecommerce-client:${{ github.sha }}
+            ghcr.io/${{ steps.image_owner.outputs.owner }}/nouveau-ecommerce-client:latest
+            ghcr.io/${{ steps.image_owner.outputs.owner }}/nouveau-ecommerce-client:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -47,7 +51,7 @@ jobs:
           file: e-commerce/Dockerfile.server
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/nouveau-ecommerce-server:latest
-            ghcr.io/${{ github.repository_owner }}/nouveau-ecommerce-server:${{ github.sha }}
+            ghcr.io/${{ steps.image_owner.outputs.owner }}/nouveau-ecommerce-server:latest
+            ghcr.io/${{ steps.image_owner.outputs.owner }}/nouveau-ecommerce-server:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
