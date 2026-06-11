@@ -153,12 +153,13 @@ Backend (Spring Boot)
 
 ## Client
 
-client/
+e-commerce/Client/
 ├── src/
 │   ├── customer/components/
 │   ├── App.tsx
 │   ├── main.tsx
 │   └── index.css
+├── cypress/
 ├── public/
 ├── package.json
 ├── tailwind.config.js
@@ -166,7 +167,7 @@ client/
 
 ## Server
 
-server/
+e-commerce/Server/
 ├── src/main/java/com/Abinash/Nouveauecommerce/
 │   ├── Config/
 │   ├── Controller/
@@ -175,6 +176,10 @@ server/
 │   ├── Repo/
 │   ├── Request/
 │   ├── Response/
+│   └── Service/
+├── src/test/java/com/Abinash/Nouveauecommerce/
+│   ├── Controller/
+│   ├── Integration/
 │   └── Service/
 ├── src/main/resources/
 │   └── application.properties
@@ -227,13 +232,13 @@ GET  /api/payment/validate
 
 ## Frontend Setup
 
-cd client  
+cd e-commerce/Client  
 npm install  
 npm run dev  
 
 ## Backend Setup
 
-cd server  
+cd e-commerce/Server  
 ./mvnw spring-boot:run  
 
 ---
