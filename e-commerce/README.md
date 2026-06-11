@@ -12,10 +12,12 @@ The project follows a client-server architecture where the frontend communicates
 
 * Full-stack eCommerce platform (React + Spring Boot)
 * Handles a catalog of **496 products**
-* Secure **JWT-based authentication**
+* Secure **JWT-based authentication** with a centralized Spring Security configuration
 * **7 REST endpoints** for core functionality
 * Average API response time: **~98ms**
-* Backend tested with **15 JUnit tests (100% pass rate)**
+* Backend tested with **32 JUnit tests** (20 unit/slice/context + 12 integration, 100% pass rate)
+* Frontend covered by a **24-test Cypress E2E suite**
+* CI/CD pipelines for build, unit tests, integration tests, E2E tests, and Docker image publishing
 * Clean layered architecture (Controller → Service → Repository)
 
 ---
@@ -45,43 +47,53 @@ The project follows a client-server architecture where the frontend communicates
 
 * RESTful API architecture
 * JWT authentication and validation
+* Centralized Spring Security configuration (CORS, stateless sessions, route authorization)
 * BCrypt password encryption
 * Layered service architecture
 * Repository pattern (database access)
 * Payment processing integration (Razorpay)
 * Custom exception handling
-* Unit testing with JUnit 5
+* Unit, slice, and integration testing with JUnit 5, Mockito, and Spring Boot Test
 
 ---
 
 # 🧪 Testing
 
-The backend includes unit tests to ensure stability and correctness of core business logic.
+The project has unit, integration, and end-to-end test coverage across both the backend and frontend.
 
 ## Testing Stack
 
 * JUnit 5
-* Spring Boot Test
-* Mockito (if applicable)
+* Mockito
+* Spring Boot Test (`@WebMvcTest`, `@SpringBootTest`)
+* H2 in-memory database (`test` profile)
+* Cypress
 
-## Test Coverage
+## Backend Test Coverage
 
-* 15 unit tests implemented
-* 100% success rate (0 failures, 0 errors)
-* Covers:
-  * Service layer logic
-  * Authentication flows
-  * Order processing
-  * Repository interactions
+* **20 unit/slice/context tests** (Maven Surefire) — service layer logic (Mockito), controller slice tests, application context load
+* **12 integration tests** (Maven Failsafe) — full-stack auth and product flows against an in-memory H2 database
+* 32/32 tests passing
+
+## Frontend E2E Coverage
+
+* **24 Cypress tests** covering the home page and product listing/filtering, fully self-mocked (no backend required)
 
 ## Run Tests
 
-cd server
-./mvnw test
+Backend (from `e-commerce/Server`):
+
+./mvnw test                                      # unit, slice, and context tests
+./mvnw failsafe:integration-test failsafe:verify # integration tests
 
 For Windows:
 
 mvnw.cmd test
+mvnw.cmd failsafe:integration-test failsafe:verify
+
+Frontend E2E (from `e-commerce/Client`):
+
+npm run e2e:run
 
 ---
 
@@ -123,6 +135,7 @@ Backend (Spring Boot)
 * Vite
 * Axios
 * React Router
+* Cypress (E2E testing)
 
 ## Backend
 
@@ -132,6 +145,7 @@ Backend (Spring Boot)
 * Maven
 * Razorpay Payment Integration
 * BCrypt Password Encoder
+* H2 (in-memory test database)
 
 ---
 
@@ -238,11 +252,19 @@ Integrated with Razorpay.
 
 # 🌍 Environment Variables
 
+Copy `e-commerce/.env.example` to `e-commerce/.env` and fill in real values before running docker-compose. `.env` is gitignored — never commit real secrets.
+
 Backend:
 
+MYSQL_ROOT_PASSWORD=changeme123  
+SPRING_DATASOURCE_USERNAME=root  
+SPRING_DATASOURCE_PASSWORD=changeme123  
 JWT_SECRET=your_secret_key  
-RAZORPAY_KEY=your_key  
-RAZORPAY_SECRET=your_secret  
+CORS_ALLOWED_ORIGINS=http://localhost:3000  
+ADMIN_EMAIL=admin@nouveau-ecommerce.com  
+ADMIN_PASSWORD=changeme123  
+RAZORPAY_API_KEY=your_key  
+RAZORPAY_API_SECRET=your_secret  
 
 Frontend:
 
@@ -259,7 +281,7 @@ Backend: AWS, Render, Railway
 
 # ⚙️ GitHub Actions
 
-This project uses three GitHub Actions workflows:
+This project uses four GitHub Actions workflows:
 
 **1. Client CI (.github/workflows/client-ci.yml)**
 Runs on push or pull request to master when files under e-commerce/Client/ change.
@@ -269,15 +291,22 @@ as an artifact for 7 days.
 
 **2. Server CI (.github/workflows/server-ci.yml)**
 Runs on push or pull request to master when files under e-commerce/Server/ change.
-Spins up a MySQL 8.0 service container for tests, sets up Java 17 (Eclipse Temurin)
-with Maven caching, runs mvn clean test, packages the app with mvn package, and
-uploads the built JAR as an artifact for 7 days.
+Sets up Java 17 (Eclipse Temurin) with Maven caching, then runs three steps against
+the in-memory H2 test database: unit/slice/context tests (mvn clean test),
+integration tests (maven-failsafe-plugin), and a JAR build (mvn package -DskipTests),
+uploading the built JAR as an artifact for 7 days.
 
-**3. Docker Build & Push (.github/workflows/docker.yml)**
+**3. E2E CI (.github/workflows/e2e-ci.yml)**
+Runs on push or pull request to master when files under e-commerce/Client/ change.
+Sets up Node.js 20, installs dependencies, and runs the Cypress E2E suite against
+the Vite dev server (npm run e2e:run). Uploads Cypress screenshots as an artifact
+if any test fails.
+
+**4. Docker Build & Push (.github/workflows/docker.yml)**
 Runs on every push to master. Logs into GitHub Container Registry (ghcr.io) using
 the built-in GITHUB_TOKEN, builds and pushes both the client and server Docker images,
-each tagged with both "latest" and the commit SHA. Uses GitHub Actions layer caching
-to speed up repeated builds.
+each tagged with the lowercased repository owner plus "latest" and the commit SHA.
+Uses GitHub Actions layer caching to speed up repeated builds.
 
 ---
 
