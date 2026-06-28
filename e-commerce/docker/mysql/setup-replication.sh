@@ -34,4 +34,7 @@ echo "[setup] Verifying replica threads..."
 mysql_exec "$REPLICA_HOST" "SHOW REPLICA STATUS\G" \
     | grep -E "Replica_IO_Running|Replica_SQL_Running"
 
+echo "[setup] Locking replica against direct writes..."
+mysql_exec "$REPLICA_HOST" "SET GLOBAL read_only=ON; SET GLOBAL super_read_only=ON;"
+
 echo "[setup] Replication configured successfully."
