@@ -1,29 +1,85 @@
 version: '3.8'
 
 services:
-  mysql:
+
+  # ── Primary MySQL node (all writes go here) ──────────────────────────────
+  mysql-primary:
     image: mysql:8.0
-    container_name: ecommerce-mysql
+    container_name: ecommerce-mysql-primary
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in your .env file}
       MYSQL_DATABASE: ecommerce
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+      --binlog-format=ROW
+      --gtid-mode=ON
+      --enforce-gtid-consistency=ON
+    volumes:
+      - mysql_primary_data:/var/lib/mysql
+      - ./docker/mysql/primary-init.sql:/docker-entrypoint-initdb.d/01-init.sql
     ports:
       - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
+  # ── Replica MySQL node (read traffic + failover reads) ───────────────────
+  mysql-replica:
+    image: mysql:8.0
+    container_name: ecommerce-mysql-replica
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in your .env file}
+      MYSQL_DATABASE: ecommerce
+    command: >
+      --server-id=2
+      --relay-log=relay-bin
+      --gtid-mode=ON
+      --enforce-gtid-consistency=ON
+      --read-only=ON
+      --super-read-only=ON
+    volumes:
+      - mysql_replica_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── One-shot container that wires replication between primary and replica ─
+  mysql-setup:
+    image: mysql:8.0
+    container_name: ecommerce-mysql-setup
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in your .env file}
+    volumes:
+      - ./docker/mysql/setup-replication.sh:/setup-replication.sh
+    entrypoint: ["bash", "/setup-replication.sh"]
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+      mysql-replica:
+        condition: service_healthy
+    restart: "no"
+
+  # ── Spring Boot API server ────────────────────────────────────────────────
   server:
     build:
       context: .
       dockerfile: Dockerfile.server
     container_name: ecommerce-server
     environment:
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:mysql://mysql:3306/ecommerce?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-primary:3306/ecommerce?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_REPLICA_URL: jdbc:mysql://mysql-replica:3306/ecommerce?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-root}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:?Set SPRING_DATASOURCE_PASSWORD in your .env file}
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in your .env file to a long random string}
@@ -35,10 +91,11 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      mysql:
-        condition: service_healthy
+      mysql-setup:
+        condition: service_completed_successfully
     restart: unless-stopped
 
+  # ── React / Nginx client ──────────────────────────────────────────────────
   client:
     build:
       context: .
@@ -51,4 +108,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  mysql_data:
+  mysql_primary_data:
+  mysql_replica_data:
