@@ -16,7 +16,8 @@ The project follows a client-server architecture where the frontend communicates
 * **7 REST endpoints** for core functionality
 * Average API response time: **~98ms**
 * Backend tested with **32 JUnit tests** (20 unit/slice/context + 12 integration, 100% pass rate)
-* Frontend covered by a **24-test Cypress E2E suite**
+* Frontend covered by a **23-test Cypress E2E suite**
+* **MySQL primary-replica replication** with automatic read/write routing and zero-data-loss failover
 * CI/CD pipelines for build, unit tests, integration tests, E2E tests, and Docker image publishing
 * Clean layered architecture (Controller → Service → Repository)
 
@@ -51,6 +52,7 @@ The project follows a client-server architecture where the frontend communicates
 * BCrypt password encryption
 * Layered service architecture
 * Repository pattern (database access)
+* MySQL primary-replica replication with `ReplicationRoutingDataSource` (writes → primary, reads → replica)
 * Payment processing integration (Razorpay)
 * Custom exception handling
 * Unit, slice, and integration testing with JUnit 5, Mockito, and Spring Boot Test
@@ -77,7 +79,15 @@ The project has unit, integration, and end-to-end test coverage across both the 
 
 ## Frontend E2E Coverage
 
-* **24 Cypress tests** covering the home page and product listing/filtering, fully self-mocked (no backend required)
+* **23 Cypress tests** covering the home page and product listing/filtering, fully self-mocked (no backend required)
+
+## Replication Failover Test
+
+Requires the Docker stack to be running (`docker compose up -d` from `e-commerce/`).
+
+Writes 100 rows to the primary, verifies they are readable on the replica, stops the primary container, confirms the replica stays readable with zero data loss, then restarts the primary.
+
+Result: **PASS — zero data loss, replica survived primary failure** (tested: 100/100 rows intact, 0 ms replication lag at failover)
 
 ## Run Tests
 
@@ -94,6 +104,10 @@ mvnw.cmd failsafe:integration-test failsafe:verify
 Frontend E2E (from `e-commerce/Client`):
 
 npm run e2e:run
+
+Replication failover (from repo root, stack must be up):
+
+python3 e-commerce/scripts/failover_test.py
 
 ---
 
@@ -120,6 +134,12 @@ Backend (Spring Boot)
         +--> Business Logic Services
         +--> Repository Layer
         +--> Payment Integration
+        |
+        v
+ReplicationRoutingDataSource
+        |
+        +--> MySQL Primary  (writes / @Transactional)
+        +--> MySQL Replica  (reads  / @Transactional readOnly)
 
 ---
 
@@ -143,6 +163,7 @@ Backend (Spring Boot)
 * Spring Security
 * JWT Authentication
 * Maven
+* MySQL 8.0 (primary-replica replication, GTID-based)
 * Razorpay Payment Integration
 * BCrypt Password Encoder
 * H2 (in-memory test database)
@@ -184,6 +205,15 @@ e-commerce/Server/
 ├── src/main/resources/
 │   └── application.properties
 └── pom.xml
+
+## Infrastructure
+
+e-commerce/docker/mysql/
+├── primary-init.sql      # creates replication user and test table on primary
+└── setup-replication.sh  # wires GTID replication between primary and replica
+
+e-commerce/scripts/
+└── failover_test.py      # end-to-end replication failover test
 
 ---
 
@@ -229,14 +259,26 @@ GET  /api/payment/validate
 * npm or yarn
 * Java 17+
 * Maven
+* Docker (for the full stack with replication)
 
-## Frontend Setup
+## Docker Setup (recommended)
+
+cd e-commerce  
+docker compose up -d  
+
+Services started:
+- Client: http://localhost:3001
+- API server: http://localhost:8080
+- MySQL primary: localhost:3306
+- MySQL replica: localhost:3307
+
+## Frontend Setup (dev)
 
 cd e-commerce/Client  
 npm install  
 npm run dev  
 
-## Backend Setup
+## Backend Setup (dev)
 
 cd e-commerce/Server  
 ./mvnw spring-boot:run  
@@ -265,7 +307,7 @@ MYSQL_ROOT_PASSWORD=changeme123
 SPRING_DATASOURCE_USERNAME=root  
 SPRING_DATASOURCE_PASSWORD=changeme123  
 JWT_SECRET=your_secret_key  
-CORS_ALLOWED_ORIGINS=http://localhost:3000  
+CORS_ALLOWED_ORIGINS=http://localhost:3001  
 ADMIN_EMAIL=admin@nouveau-ecommerce.com  
 ADMIN_PASSWORD=changeme123  
 RAZORPAY_API_KEY=your_key  
@@ -289,26 +331,26 @@ Backend: AWS, Render, Railway
 This project uses four GitHub Actions workflows:
 
 **1. Client CI (.github/workflows/client-ci.yml)**
-Runs on push or pull request to master when files under e-commerce/Client/ change.
+Runs on push or pull request to main when files under e-commerce/Client/ change.
 Sets up Node.js 20, installs dependencies with npm ci, runs TypeScript type checking
 with tsc --noEmit, builds the app with npm run build, and uploads the dist folder
 as an artifact for 7 days.
 
 **2. Server CI (.github/workflows/server-ci.yml)**
-Runs on push or pull request to master when files under e-commerce/Server/ change.
+Runs on push or pull request to main when files under e-commerce/Server/ change.
 Sets up Java 17 (Eclipse Temurin) with Maven caching, then runs three steps against
 the in-memory H2 test database: unit/slice/context tests (mvn clean test),
 integration tests (maven-failsafe-plugin), and a JAR build (mvn package -DskipTests),
 uploading the built JAR as an artifact for 7 days.
 
 **3. E2E CI (.github/workflows/e2e-ci.yml)**
-Runs on push or pull request to master when files under e-commerce/Client/ change.
+Runs on push or pull request to main when files under e-commerce/Client/ change.
 Sets up Node.js 20, installs dependencies, and runs the Cypress E2E suite against
 the Vite dev server (npm run e2e:run). Uploads Cypress screenshots as an artifact
 if any test fails.
 
 **4. Docker Build & Push (.github/workflows/docker.yml)**
-Runs on every push to master. Logs into GitHub Container Registry (ghcr.io) using
+Runs on every push to main. Logs into GitHub Container Registry (ghcr.io) using
 the built-in GITHUB_TOKEN, builds and pushes both the client and server Docker images,
 each tagged with the lowercased repository owner plus "latest" and the commit SHA.
 Uses GitHub Actions layer caching to speed up repeated builds.
